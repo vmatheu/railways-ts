@@ -1,0 +1,19 @@
+{
+  "include": ["src/**/*", "index.ts"],
+  "exclude": ["./mocks", "./test"],
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "esnext",
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "allowJs": true,
+    "baseUrl": "src/"
+  }
+}
