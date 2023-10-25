@@ -1,6 +1,6 @@
 {
   "name": "railways-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Library for help to railway programing",
   "main": "./lib/index.js",
   "engines": {
@@ -18,8 +18,6 @@
   "license": "private",
   "devDependencies": {
     "@types/chai": "4.3.1",
-    "@types/express": "4.17.13",
-    "@types/lodash": "^4.14.21",
     "@types/mocha": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",

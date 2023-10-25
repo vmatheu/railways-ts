@@ -69,7 +69,7 @@ type ResultAsync<OK, FAIL> = Promise<Result<OK, FAIL>> & {
       .map(elements => mapReduce(elements))
   * 
   */
-      readonly ifSuccess: <NewOK>(binder: (v: OK) => ResultAsync<NewOK, FAIL>) => ResultAsync<NewOK, FAIL>
+  readonly ifSuccess: <NewOK>(binder: (v: OK) => ResultAsync<NewOK, FAIL>) => ResultAsync<NewOK, FAIL>
 }
 
 const promiseToResultSuccess = <OK, FAIL>(promise: Promise<OK>): Promise<Result<OK, FAIL>> => {
@@ -90,7 +90,7 @@ const mapBindAsync = <OKElem, FAIL>(func: () => Promise<OKElem>) => <OK>(vChain:
       ...vChain,
       newElement: result,
     })
-  ))
+    ))
 
 const newResultFromPromise = <OK, FAIL>(value: Promise<Result<OK, FAIL>>): ResultAsync<OK, FAIL> => ({
   value,
@@ -123,7 +123,7 @@ const newSuccessFromPromise = <OK, FAIL>(value: Promise<OK>): ResultAsync<OK, FA
  * @param value OK is passing to promise resolve. You can use protectFailure for transform exception to Failure.
  * @returns ResultAsync with Success to return promise 
  */
- const newSuccessAsync = <OK, FAIL>(value: OK): ResultAsync<OK, FAIL> =>
+const newSuccessAsync = <OK, FAIL>(value: OK): ResultAsync<OK, FAIL> =>
   newSuccessFromPromise(Promise.resolve(value))
 
 /**
@@ -139,8 +139,8 @@ const newFailureFromPromise = <OK, FAIL>(value: Promise<FAIL>): ResultAsync<OK, 
  * @param value promise to resulAsync. You can use protectFailure for transform exception to Failure.
  * @returns ResultAsync with Failure to return promise 
  */
- const newFailureAsync = <OK, FAIL>(value: FAIL): ResultAsync<OK, FAIL> =>
- newFailureFromPromise(Promise.resolve(value))
+const newFailureAsync = <OK, FAIL>(value: FAIL): ResultAsync<OK, FAIL> =>
+  newFailureFromPromise(Promise.resolve(value))
 
 /**
  * 
@@ -159,12 +159,12 @@ const mapReduce = <OK>(value: OK): Omit<OK, 'newElement'> => { delete value['new
  * @param fnPrimary is a async function without params when execute then return "Success" but if exceute oncatch return Failure" 
   * @returns ResultAsync with Success or Failure
  */
- const newResultFromAsyncFN = <OK>(
+const newResultFromAsyncFN = <OK>(
   fnPrimary: () => Promise<OK>) => newResultFromPromise(
     fnPrimary()
-        .then(v => newSuccess<OK,Error>(v))
-        .catch((e: Error) => newFailure<OK, Error>(e))
-    )
+      .then(v => newSuccess<OK, Error>(v))
+      .catch((e: Error) => newFailure<OK, Error>(e))
+  )
 
 /**
  * 
@@ -172,12 +172,23 @@ const mapReduce = <OK>(value: OK): Omit<OK, 'newElement'> => { delete value['new
  * @param mapErrorToSuccess is a function mapping when execute transform error to new object in Success result.
   * @returns ResultAsync with Success or Failure
  */
- const newSuccessFromAsyncFN = <OK, FAIL>(
+const newSuccessFromAsyncFN = <OK, FAIL>(
   fnPrimary: () => Promise<OK>, mapErrorToSuccess: (e: FAIL) => OK) => newResultFromPromise(
     fnPrimary()
-        .then(v => newSuccess<OK,FAIL>(v))
-        .catch((e: FAIL) => newSuccess<OK, FAIL>(mapErrorToSuccess(e)))
-    )
+      .then(v => newSuccess<OK, FAIL>(v))
+      .catch((e: FAIL) => newSuccess<OK, FAIL>(mapErrorToSuccess(e)))
+  )
+
+/**
+ * 
+ * @param resultAsync is a result to transform failure with new success"
+ * @param success is object to use when result is failure" 
+ * @returns ResultAsync with Success or Failure
+ */
+const failureToSuccess = <OK, FAIL>(resultAsync: ResultAsync<OK, FAIL>,
+  success: OK): ResultAsync<OK, FAIL> => newResultFromPromise(
+    resultAsync.then(result => result.isSuccess ? result : newSuccess<OK, FAIL>(success))
+  )
 
 export {
   ResultAsync,
@@ -190,5 +201,6 @@ export {
   mapReduce,
   mapBindAsync,
   newSuccessAsync,
-  newFailureAsync
+  newFailureAsync,
+  failureToSuccess
 }

@@ -9,6 +9,7 @@ import { newFailureFromPromise,
   newSuccessAsync,
   newFailureAsync,
   newSuccessFromAsyncFN,
+  failureToSuccess,
 } from "./result-async";
 
 describe("unit test for async results ", () => {
@@ -172,9 +173,19 @@ describe("unit test for async results ", () => {
           newFailure<string, string>(value)
 
       const resultAsync = await newResultFromRule<string, string, string>(value, funRule)
-      expect(resultAsync.isSuccess).to.be.equal
+      expect(resultAsync.isSuccess).to.be.true
       resultAsync.iter(
         value => expect(value).to.be.eql("Goku ")
+      )
+    })
+
+    it("failureToSuccess", async () => {
+      const resultAsync = newSuccessAsync<string, string>("origin-result")
+      const newresult = await failureToSuccess(resultAsync, "not happend")
+
+      expect(newresult.isSuccess).to.be.true
+      newresult.iter(
+        value => expect(value).to.be.eql("origin-result")
       )
     })
   })
@@ -305,6 +316,16 @@ describe("unit test for async results ", () => {
 
       expect(result.isSuccess).to.be.true
       expect(result.value).to.be.eql("Error")
+    })
+
+    it("failureToSuccess", async () => {
+      const resultAsync = newFailureAsync<string, string>("origin-result-failure")
+      const newresult = await failureToSuccess(resultAsync, "be-happend")
+
+      expect(newresult.isSuccess).to.be.true
+      newresult.iter(
+        value => expect(value).to.be.eql("be-happend")
+      )
     })
   })
 })
