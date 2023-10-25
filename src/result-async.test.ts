@@ -10,6 +10,7 @@ import { newFailureFromPromise,
   newFailureAsync,
   newSuccessFromAsyncFN,
   failureToSuccess,
+  retryResult,
 } from "./result-async";
 
 describe("unit test for async results ", () => {
@@ -31,6 +32,18 @@ describe("unit test for async results ", () => {
   }
 
   describe("success path", () => {
+    it("retryResult", async () => {
+      let counter = 0
+      const resultAsyncFn = () => {
+        counter++
+        return newSuccessAsync<string, string>("origin-result")
+      }
+
+      const expected = await retryResult(resultAsyncFn, 3, 10)
+      expect(expected.isSuccess).to.be.true
+      expect(counter).to.be.eq(1)
+    })
+
     it("binderAsyncFailure result async", async () => {
       const resultAsync = newSuccessFromPromise<string, string>(asyncService())
       resultAsync.ifFailure((v) => newFailureFromPromise(asyncGetNumber()))
@@ -326,6 +339,18 @@ describe("unit test for async results ", () => {
       newresult.iter(
         value => expect(value).to.be.eql("be-happend")
       )
+    })
+
+    it("retryResult", async () => {
+      let counter = 0
+      const resultAsyncFn = () => {
+        counter++
+        return newFailureAsync<string, string>("origin-result")
+      }
+
+      const expected = await retryResult(resultAsyncFn, 3, 10)
+      expect(expected.isSuccess).to.be.false
+      expect(counter).to.be.eq(3)
     })
   })
 })

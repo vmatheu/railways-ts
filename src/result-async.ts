@@ -190,6 +190,23 @@ const failureToSuccess = <OK, FAIL>(resultAsync: ResultAsync<OK, FAIL>,
     resultAsync.then(result => result.isSuccess ? result : newSuccess<OK, FAIL>(success))
   )
 
+/**
+ * 
+ * @param resultAsyncFn funtion to run. This function have retry param is a counter retry"
+ * @param retryMax level to retry"
+ * @param wait time sleep into milliseconds between retries
+ * @param retry inner param to passing retry number"  
+ * @returns ResultAsync with Success or Failure
+ */
+const retryResult = <OK, FAIL>(
+  resultAsyncFn: (retry: number) => ResultAsync<OK, FAIL>,
+  retryMax: number, wait: number, retry = 1): ResultAsync<OK, FAIL> =>
+  newResultFromPromise(resultAsyncFn(retry).then(
+    result => (!(--retryMax) || result.isSuccess) ? result
+      : new Promise(resolve => setTimeout(resolve, wait))
+        .then(_ => retryResult(resultAsyncFn, retryMax, wait, ++retry))
+  ))
+
 export {
   ResultAsync,
   newResultFromPromise,
@@ -202,5 +219,6 @@ export {
   mapBindAsync,
   newSuccessAsync,
   newFailureAsync,
-  failureToSuccess
+  failureToSuccess,
+  retryResult
 }
